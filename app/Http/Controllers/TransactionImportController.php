@@ -35,45 +35,50 @@ class TransactionImportController extends Controller
             $file = $request->file('csv_file');
             $csvFile = Reader::createFromPath($file->getPathname());
 
+            // Remove first rows
             $csvFile->setHeaderOffset($mappingProfile->skip_rows);
 
             $csvFile->setDelimiter(';');
             $records = $csvFile->getRecords();
             $imported = 0;
             $errors = [];
+     
+            foreach ($records as $rowNum => $record) {  
+                if ($rowNum < $mappingProfile->skip_rows) {
+                    continue;
+                }
 
-            foreach ($records as $record) {
-                if ($record[$mappingProfile->fields['amount']] === null) {
+                if ($record[$mappingProfile->amount] === null) {
                     continue;
                 }
 
                 try {
                     // Parse amount - remove spaces and replace comma with dot
-                    $amount = str_replace(' ', '', $record[$mappingProfile->fields['amount']]);
+                    $amount = str_replace(' ', '', $record[$mappingProfile->amount]);
                     $amount = str_replace(',', '.', $amount);
 
                     // Determine transaction type based on amount
                     $type = floatval($amount) >= 0 ? 'income' : 'expense';
 
                     // Parse date - assuming format YYYY. MM. DD
-                    $date = str_replace('.', '-', rtrim($record[$mappingProfile->fields['transaction_date']], '.'));
+                    $date = str_replace('.', '-', rtrim($record[$mappingProfile->transaction_date], '.'));
 
                     // Detect category based on description and transaction type
-                    $description = strtolower($record[$mappingProfile->fields['transaction_title']] . ' ' . $record[$mappingProfile->fields['description']]);
+                    $description = strtolower($record[$mappingProfile->transaction_title] . ' ' . $record[$mappingProfile->description]);
 
-                    $counterparty = trim($record[$mappingProfile->fields['counterparty']]);
+                    $counterparty = trim($record[$mappingProfile->counterparty]);
                     if (empty($counterparty)) {
-                        $counterparty = trim($record[$mappingProfile->fields['location']]);
+                        $counterparty = trim($record[$mappingProfile->location]);
                     }
 
                     // Get all categories with their keywords
                     $categoryID = Category::where('is_default', true)->first()->id;
 
-                    $description = str_replace(' ', '', $record[$mappingProfile->fields['description']]);
-                    $referenceID = ltrim($record[$mappingProfile->fields['reference_id']] ?? null, '0');
+                    $description = str_replace(' ', '', $record[$mappingProfile->description]);
+                    $referenceID = ltrim($record[$mappingProfile->reference_id] ?? null, '0');
                     $referenceID = (empty($referenceID)) ? null : $referenceID;
 
-                    $cardNumber = $record[$mappingProfile->fields['card_number']] ?? null;
+                    $cardNumber = $record[$mappingProfile->card_number] ?? null;
                     // mask card middle
                     $cardNumber = substr($cardNumber, 0, 4) . '****' . substr($cardNumber, -4);
 
@@ -84,13 +89,14 @@ class TransactionImportController extends Controller
                             ->where('user_id', auth()->id() ?? 1)
                             ->delete();
                     }
+
                     try {
                         $transaction = Transaction::create([
                             'user_id' => auth()->id() ?? 1,
                             'category_id' => $categoryID,
                             'amount' => abs(floatval($amount)),
                             'type' => $type,
-                            'transaction_title' => $record[$mappingProfile->fields['transaction_title']],
+                            'transaction_title' => $record[$mappingProfile->transaction_title],
                             'description' => $description,
                             'counterparty' => $counterparty,
                             'transaction_date' => $date,
@@ -101,11 +107,11 @@ class TransactionImportController extends Controller
                         ]);
                     } catch (\Illuminate\Database\QueryException $e) {
                         if (str_contains($e->getMessage(), 'Duplicate entry')) {
-                            $errors[] = "Duplicate entry: " . $record[$mappingProfile->fields['reference_id']];
+                            $errors[] = "Duplicate entry: " . $record[$mappingProfile->reference_id];
                             continue;
                         }
                         if (str_contains($e->getMessage(), 'Integrity constraint violation')) {
-                            $errors[] = "Integrity constraint violation: " . $record[$mappingProfile->fields['reference_id']];
+                            $errors[] = "Integrity constraint violation: " . $record[$mappingProfile->reference_id];
                             continue;
                         }
                         throw $e;
@@ -113,7 +119,7 @@ class TransactionImportController extends Controller
                     $transaction->categorize();                        
                     $imported++;                                     
                 } catch (\Exception $e) {
-                    $errors[] = "Error processing row: " . $e->getMessage();
+                    $errors[] = "Error processing row ($rowNum): " . $e->getMessage();
                 }
             }
 

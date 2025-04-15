@@ -54,11 +54,6 @@
                             @enderror
                         </div>
 
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="is_default" name="is_default" value="1" {{ old('is_default', $category->is_default) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="is_default">Set as default category</label>
-                        </div>
-
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <button type="submit" class="btn btn-primary">
                                 Update Category

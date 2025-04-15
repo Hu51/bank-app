@@ -15,6 +15,7 @@ class Category extends Model
         'color',
         'icon',
         'is_default',
+        'slug'
     ];
 
     public function transactions()

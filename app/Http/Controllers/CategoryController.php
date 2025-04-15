@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\CategoryKeyword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class CategoryController extends Controller
 {
@@ -35,14 +36,16 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'type' => 'required|in:income,expense',
             'color' => 'nullable|string|max:255',
-            'icon' => 'nullable|string|max:255',
-            'is_default' => 'boolean',
+            'icon' => 'nullable|string|max:255'
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
-        
-        $category = Category::create($validated);
-        
+        $validated['slug'] = Str::slug($request['name']);
+        if (is_null($request['icon'])) {
+            $validated['icon'] = 'fa fa-circle';
+        }
+
+        Category::create($validated);
+
         return redirect()->route('categories.index')
             ->with('success', 'Category created successfully.');
     }
@@ -64,11 +67,10 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'type' => 'required|in:income,expense',
             'color' => 'nullable|string|max:255',
-            'icon' => 'nullable|string|max:255',
-            'is_default' => 'boolean',
+            'icon' => 'nullable|string|max:255'
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
+        $validated['slug'] = Str::slug($request['name']);
         
         $category->update($validated);
         
