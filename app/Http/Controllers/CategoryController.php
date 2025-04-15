@@ -39,8 +39,8 @@ class CategoryController extends Controller
             'icon' => 'nullable|string|max:255'
         ]);
 
-        $validated['slug'] = Str::slug($request['name']);
-        if (is_null($request['icon'])) {
+        $validated['slug'] = Str::slug($request->input('name'));
+        if (is_null($request->input('icon'))) {
             $validated['icon'] = 'fa fa-circle';
         }
 
@@ -70,7 +70,7 @@ class CategoryController extends Controller
             'icon' => 'nullable|string|max:255'
         ]);
 
-        $validated['slug'] = Str::slug($request['name']);
+        $validated['slug'] = Str::slug($request->input('name'));
         
         $category->update($validated);
         
