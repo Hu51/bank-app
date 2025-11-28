@@ -53,13 +53,13 @@ class Transaction extends Model
         $categories = $categories->sortBy(function($category) {
             return strlen($category->keyword);
         });
-        
+            
         foreach ($categories as $cat) {
             foreach ($cat->keywords as $keyword) {
                 if (
-                    str_contains(strtoupper($this->description), strtoupper($keyword->keyword)) || 
-                    str_contains(strtoupper($this->transaction_title), strtoupper($keyword->keyword)) || 
-                    str_contains(strtoupper($this->counterparty), strtoupper($keyword->keyword))
+                    str_contains(mb_strtoupper($this->description), mb_strtoupper($keyword->keyword)) || 
+                    str_contains(mb_strtoupper($this->transaction_title), mb_strtoupper($keyword->keyword)) || 
+                    str_contains(mb_strtoupper($this->counterparty), mb_strtoupper($keyword->keyword))
                 ) {
                     $this->category_id = $cat->id;
                     break 2;

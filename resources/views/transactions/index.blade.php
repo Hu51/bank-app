@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+        .pointer {
+            cursor: pointer;
+        }
+    </style>
+    
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
@@ -96,11 +102,11 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    <span class="float-left quick-date small badge bg-primary" data-range="this-month"># This Month</span>
-                                    <span class="float-left quick-date small badge bg-primary" data-range="last-month"># Last Month</span>
-                                    <span class="float-left quick-date small badge bg-primary" data-range="last-3-months"># Last 3 Months</span>
-                                    <span class="float-left quick-date small badge bg-primary" data-range="this-year"># This Year</span>
-                                    <span class="float-left quick-date small badge bg-primary" data-range="last-year"># Last Year</span>
+                                    <span class="float-left quick-date small badge bg-primary pointer" data-range="this-month"># This Month</span>
+                                    <span class="float-left quick-date small badge bg-primary pointer" data-range="last-month"># Last Month</span>
+                                    <span class="float-left quick-date small badge bg-primary pointer" data-range="last-3-months"># Last 3 Months</span>
+                                    <span class="float-left quick-date small badge bg-primary pointer" data-range="this-year"># This Year</span>
+                                    <span class="float-left quick-date small badge bg-primary pointer" data-range="last-year"># Last Year</span>
                                 </div>
                             </div>
                         </form>
