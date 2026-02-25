@@ -1,17 +1,6 @@
-@import 'tailwindcss';
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
-
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-}
-
-/* === Bootstrap redesign theme === */
+/* === Bootstrap 5 app theme === */
 :root {
     --app-primary: #0d6efd;
     --app-primary-dark: #0a58ca;
@@ -26,7 +15,7 @@
     min-height: 100vh;
 }
 
-/* Navbar: ensure visible when Tailwind + Bootstrap both loaded */
+/* Navbar */
 .app-navbar,
 nav.app-navbar.navbar {
     background: var(--app-navbar-bg) !important;
@@ -58,24 +47,6 @@ nav.app-navbar.navbar {
 .app-navbar .dropdown-menu-dark .dropdown-item:hover {
     background-color: rgba(255, 255, 255, 0.1);
     color: #fff;
-}
-
-/* Fix: Tailwind's .collapse (visibility: collapse) overrides Bootstrap navbar menu */
-.app-navbar .navbar-collapse.collapse {
-    visibility: visible !important;
-    display: none;
-}
-.app-navbar .navbar-collapse.collapse.show {
-    display: flex !important;
-}
-@media (min-width: 992px) {
-    .app-navbar .navbar-collapse.collapse {
-        display: flex !important;
-    }
-}
-.app-navbar .navbar-nav {
-    display: flex;
-    flex-wrap: wrap;
 }
 
 .app-main {
