@@ -106,7 +106,7 @@
                         </div>
 
                         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                            <nav aria-label="Page navigation">
+                            <nav aria-label="Page navigation" class="w-100">
                                 {{ $transactions->links('pagination::bootstrap-5') }}
                             </nav>
                         </div>
@@ -187,11 +187,12 @@
                             </table>
                         </div>
 
-                        <div class="mt-3">
-                            <nav aria-label="Page navigation">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2">
+                            <nav aria-label="Page navigation" class="w-100">
                                 {{ $transactions->links('pagination::bootstrap-5') }}
                             </nav>
                         </div>
+
                         @endif
                     </div>
                 </div>
