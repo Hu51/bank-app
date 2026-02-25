@@ -232,6 +232,23 @@ class TransactionController extends Controller
 
         $counterparties = $query->paginate(50)->appends($request->all());
 
+        // Totals across all transactions matching the same filters (all counterparties, all pages)
+        $totalsQuery = Transaction::query()->where('user_id', $this->authedUser());
+        if ($request->has('search') && $request->search != '') {
+            $totalsQuery->where('counterparty', 'like', '%' . $request->search . '%');
+        }
+        if ($request->has('start_date') && $request->start_date != '') {
+            $totalsQuery->where('transaction_date', '>=', $request->start_date);
+        }
+        if ($request->has('end_date') && $request->end_date != '') {
+            $totalsQuery->where('transaction_date', '<=', $request->end_date);
+        }
+        $totals = $totalsQuery->selectRaw('
+                COUNT(*) as total_count,
+                COALESCE(SUM(CASE WHEN type = "income" THEN amount ELSE 0 END), 0) as total_income,
+                COALESCE(SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END), 0) as total_expenses
+            ')->first();
+
         // Get most common category for each counterparty
         foreach ($counterparties as $counterparty) {
             $mostCommonCategory = Transaction::where('counterparty', $counterparty->counterparty)
@@ -247,7 +264,7 @@ class TransactionController extends Controller
             $counterparty->most_common_category = $mostCommonCategory ? $mostCommonCategory->category : null;
         }
 
-        return view('transactions.counterparty', compact('counterparties'));
+        return view('transactions.counterparty', compact('counterparties', 'totals'));
     }
 
     public function yearSummary(Request $request)

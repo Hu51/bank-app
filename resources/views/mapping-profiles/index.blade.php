@@ -18,7 +18,7 @@
                     @endif
 
                     <div class="table-responsive">
-                        <table class="table table-striped">
+                        <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
                                     <th>Title</th>

@@ -11,4 +11,164 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
-/* Custom styles below */
+/* === Bootstrap redesign theme === */
+:root {
+    --app-primary: #0d6efd;
+    --app-primary-dark: #0a58ca;
+    --app-navbar-bg: linear-gradient(135deg, #1e3a5f 0%, #0d2137 100%);
+    --app-body-bg: #f0f2f5;
+    --app-card-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.06);
+    --app-card-border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.app-body {
+    background-color: var(--app-body-bg);
+    min-height: 100vh;
+}
+
+/* Navbar: ensure visible when Tailwind + Bootstrap both loaded */
+.app-navbar,
+nav.app-navbar.navbar {
+    background: var(--app-navbar-bg) !important;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+    position: relative;
+    z-index: 1030;
+}
+
+.app-navbar .navbar-brand,
+.app-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.app-navbar .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.app-navbar .nav-link:hover,
+.app-navbar .nav-link:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 1) !important;
+}
+
+.app-navbar .dropdown-menu-dark .dropdown-item {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.app-navbar .dropdown-menu-dark .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* Fix: Tailwind's .collapse (visibility: collapse) overrides Bootstrap navbar menu */
+.app-navbar .navbar-collapse.collapse {
+    visibility: visible !important;
+    display: none;
+}
+.app-navbar .navbar-collapse.collapse.show {
+    display: flex !important;
+}
+@media (min-width: 992px) {
+    .app-navbar .navbar-collapse.collapse {
+        display: flex !important;
+    }
+}
+.app-navbar .navbar-nav {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.app-main {
+    padding: 1.75rem 0 3rem;
+}
+
+/* Page cards */
+.app-body .card {
+    border: var(--app-card-border);
+    border-radius: 0.5rem;
+    box-shadow: var(--app-card-shadow);
+}
+
+.app-body .card-header {
+    background-color: #fff;
+    border-bottom: var(--app-card-border);
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+}
+
+.app-body .card-body {
+    padding: 1.25rem;
+}
+
+/* Tables */
+.app-body .table {
+    --bs-table-striped-bg: rgba(0, 0, 0, 0.02);
+}
+
+.app-body .table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: #495057;
+    border-bottom-width: 2px;
+    padding: 0.75rem 1rem;
+}
+
+.app-body .table tbody td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+}
+
+.app-body .table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.04);
+}
+
+/* Buttons */
+.app-body .btn {
+    border-radius: 0.375rem;
+    font-weight: 500;
+}
+
+.app-body .btn-primary {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Forms */
+.app-body .form-control,
+.app-body .form-select {
+    border-radius: 0.375rem;
+    border-color: #dee2e6;
+}
+
+.app-body .form-control:focus,
+.app-body .form-select:focus {
+    border-color: var(--app-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+}
+
+/* Alerts */
+.app-body .alert {
+    border-radius: 0.5rem;
+    border: none;
+}
+
+/* Summary stat cards */
+.app-body .card.bg-success .card-body,
+.app-body .card.bg-danger .card-body,
+.app-body .card.bg-primary .card-body,
+.app-body .card.bg-warning .card-body {
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.app-body .card.bg-success,
+.app-body .card.bg-danger,
+.app-body .card.bg-primary,
+.app-body .card.bg-warning {
+    border: none;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.08);
+}
+
+.app-body .pointer {
+    cursor: pointer;
+}
