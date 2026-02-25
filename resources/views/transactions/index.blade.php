@@ -132,10 +132,9 @@
                                         <th>Title</th>
                                         <th>Counterparty</th>
                                         <th class="d-none d-lg-table-cell">Description</th>
+                                        <th class="text-end">Amount</th>
                                         <th class="d-none d-xl-table-cell">Card</th>
                                         <th>Category</th>
-                                        <th>Type</th>
-                                        <th class="text-end">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -166,6 +165,9 @@
                                                 @endif
                                             </td>
                                             <td class="d-none d-lg-table-cell small text-muted">{{ Str::limit($transaction->description ?? '-', 25) }}</td>
+                                            <td class="text-end fw-medium {{ $transaction->type === 'income' ? 'text-success' : 'text-danger' }}">
+                                               {{ number_format($transaction->amount, 2) }}
+                                            </td>                                         
                                             <td class="d-none d-xl-table-cell small">{{ $transaction->card_number }}</td>
                                             <td>
                                                 @if($transaction->category)
@@ -178,12 +180,6 @@
                                                 @else
                                                     <span class="text-muted">—</span>
                                                 @endif
-                                            </td>
-                                            <td>
-                                                <span class="badge {{ $transaction->type === 'income' ? 'bg-success' : 'bg-danger' }}">{{ ucfirst($transaction->type) }}</span>
-                                            </td>
-                                            <td class="text-end fw-medium {{ $transaction->type === 'income' ? 'text-success' : 'text-danger' }}">
-                                                {{ number_format($transaction->amount, 2) }}
                                             </td>
                                         </tr>
                                     @endforeach
