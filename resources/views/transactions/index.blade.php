@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+
+        .app-body .table tbody td {
+            padding: 5px !important;
+        }
+
+    </style>
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
@@ -17,7 +24,8 @@
                             <button type="button" class="btn btn-primary" id="mass-actions-btn" disabled title="Select rows below first">
                                 <i class="fas fa-edit me-1"></i> Mass Actions
                             </button>
-                            <a id="recategorize-btn" class="btn btn-outline-primary" href="javascript:void(0)" data-url="{{ route('transactions.recategorize') }}" title="Re-run category rules on uncategorized">
+                            <a id="recategorize-btn" class="btn btn-outline-primary" href="javascript:void(0)" data-url="{{ route('transactions.recategorize') }}"
+                               title="Re-run category rules on uncategorized">
                                 <i class="fas fa-sync-alt me-1"></i> Recategorize
                             </a>
                         </div>
@@ -25,7 +33,8 @@
 
                     <div class="card-body">
                         <!-- Mass Actions Form -->
-                        <form id="mass-actions-form" action="{{ route('transactions.mass-update') }}" method="POST" class="mb-4 d-none border border-primary border-opacity-25 rounded p-3 bg-primary bg-opacity-10">
+                        <form id="mass-actions-form" action="{{ route('transactions.mass-update') }}" method="POST"
+                              class="mb-4 d-none border border-primary border-opacity-25 rounded p-3 bg-primary bg-opacity-10">
                             @csrf
                             <input type="hidden" name="transaction_ids" id="mass_transaction_ids">
                             <div class="row g-3 align-items-end">
@@ -100,6 +109,10 @@
                                     <div class="col-6 col-lg-auto d-flex gap-1">
                                         <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter me-1"></i> Filter</button>
                                         <a href="{{ route('transactions.index') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+
+                                        <input type="checkbox" name="groupByPartner" id="groupByPartner" class="form-check-input form-check-input-sm ms-2"
+                                               {{ request('groupByPartner') ? 'checked' : '' }} value="1">
+                                        <label for="groupByPartner" class="form-check-label small text-muted mb-0">Group by Counterparty</label>
                                     </div>
                                 </div>
                             </form>
@@ -115,50 +128,66 @@
                             <div class="text-center py-5 text-muted">
                                 <i class="fas fa-receipt fa-3x mb-3 opacity-50"></i>
                                 <p class="mb-1">No transactions match your filters.</p>
-                                <p class="small mb-0"><a href="{{ route('transactions.import') }}">Import transactions</a> or <a href="{{ route('transactions.index') }}">clear filters</a>.</p>
+                                <p class="small mb-0"><a href="{{ route('transactions.import') }}">Import transactions</a> or <a href="{{ route('transactions.index') }}">clear
+                                        filters</a>.</p>
                             </div>
                         @else
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover table-sm align-middle">
-                                <thead>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover table-sm align-middle">
+                                    <thead>
                                     <tr>
-                                        <th style="width: 2.5rem;">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="select-all" aria-label="Select all">
-                                            </div>
-                                        </th>
-                                        <th style="width: 2.5rem;" class="text-nowrap"><span class="visually-hidden">View</span></th>
-                                        <th>Date</th>
-                                        <th>Title</th>
+                                        @if(!$groupByPartner)
+                                            <th style="width: 2.5rem;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="select-all" aria-label="Select all">
+                                                </div>
+                                            </th>
+                                            <th style="width: 2.5rem;" class="text-nowrap">
+                                                <span class="visually-hidden">View</span>
+                                            </th>
+                                            <th>Date</th>
+                                            <th>Title</th>
+                                        @endif
                                         <th>Counterparty</th>
-                                        <th class="d-none d-lg-table-cell">Description</th>
+                                        <th class="d-none d-lg-table-cell">
+                                            @if(!$groupByPartner) Description @else Count @endif
+                                        </th>
                                         <th class="text-end">Amount</th>
                                         <th class="d-none d-xl-table-cell">Card</th>
                                         <th>Category</th>
                                     </tr>
-                                </thead>
-                                <tbody>
+                                    </thead>
+                                    <tbody class="table-sm">
                                     @foreach($transactions as $transaction)
                                         <tr>
-                                            <td>
-                                                <div class="form-check">
-                                                    <input class="form-check-input transaction-checkbox" type="checkbox"
-                                                           name="transaction_ids[]" value="{{ $transaction->id }}" aria-label="Select row">
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-outline-secondary view-transaction py-0 px-1"
-                                                    data-bs-toggle="modal" data-bs-target="#transactionModal"
-                                                    data-transaction-id="{{ $transaction->id }}"
-                                                    aria-label="View details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                            </td>
-                                            <td class="text-nowrap">{{ $transaction->transaction_date->format('Y-m-d') }}</td>
-                                            <td><span class="text-truncate d-inline-block" style="max-width: 12rem;" title="{{ $transaction->transaction_title }}">{{ $transaction->transaction_title }}</span></td>
-                                            <td>
-                                                <span class="text-truncate d-inline-block" style="max-width: 10rem;" title="{{ $transaction->counterparty }}">
-                                                    {{ $transaction->counterparty }}
+                                            @if(!$groupByPartner)
+                                                <td>
+                                                    <div class="text-center">
+                                                        <input class="form-check-input transaction-checkbox" type="checkbox"
+                                                               name="transaction_ids[]" value="{{ $transaction->id }}" aria-label="Select row">
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary view-transaction py-0 px-1"
+                                                            data-bs-toggle="modal" data-bs-target="#transactionModal"
+                                                            data-transaction-id="{{ $transaction->id }}"
+                                                            aria-label="View details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </td>
+                                                <td class="text-nowrap small">
+                                                    {{ $transaction->transaction_date->format('Y-m-d') }}
+                                                </td>
+                                                <td>
+                                                <span class="d-inline-block small" style="max-width: 12rem;"
+                                                      title="{{ $transaction->transaction_title }}">
+                                                    {{ Str::limit($transaction->transaction_title, 40) }}
+                                                </span>
+                                                </td>
+                                            @endif
+                                            <td class="small">
+                                                <span class="d-inline-block" style="max-width: 10rem;" title="{{ $transaction->counterparty }}">
+                                                    {{ Str::limit($transaction->counterparty, 30) }}
                                                 </span>
                                                 @if($transaction->comment)
                                                     <small class="text-muted d-block">{{ Str::limit($transaction->comment, 20) }}</small>
@@ -166,8 +195,8 @@
                                             </td>
                                             <td class="d-none d-lg-table-cell small text-muted">{{ Str::limit($transaction->description ?? '-', 25) }}</td>
                                             <td class="text-end fw-medium {{ $transaction->type === 'income' ? 'text-success' : 'text-danger' }}">
-                                               {{ number_format($transaction->amount, 2) }}
-                                            </td>                                         
+                                                {{ number_format($transaction->amount, 2) }}
+                                            </td>
                                             <td class="d-none d-xl-table-cell small">{{ $transaction->card_number }}</td>
                                             <td>
                                                 @if($transaction->category)
@@ -183,15 +212,15 @@
                                             </td>
                                         </tr>
                                     @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                    </tbody>
+                                </table>
+                            </div>
 
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2">
-                            <nav aria-label="Page navigation" class="w-100">
-                                {{ $transactions->links('pagination::bootstrap-5') }}
-                            </nav>
-                        </div>
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2">
+                                <nav aria-label="Page navigation" class="w-100">
+                                    {{ $transactions->links('pagination::bootstrap-5') }}
+                                </nav>
+                            </div>
 
                         @endif
                     </div>
@@ -283,7 +312,8 @@
 
                     <section class="mb-0">
                         <h6 class="text-uppercase small fw-semibold text-muted mb-2">Metadata</h6>
-                        <pre id="modal-transaction-metadata" class="bg-dark text-light rounded p-3 small mb-0" style="max-height: 160px; overflow: auto; white-space: pre-wrap; font-size: 0.7rem;"></pre>
+                        <pre id="modal-transaction-metadata" class="bg-dark text-light rounded p-3 small mb-0"
+                             style="max-height: 160px; overflow: auto; white-space: pre-wrap; font-size: 0.7rem;"></pre>
                     </section>
                 </div>
                 <div class="modal-footer border-0 pt-0">
@@ -309,7 +339,7 @@
                 recategorizeBtn.addEventListener('click', function (e) {
                     e.preventDefault();
                     const url = recategorizeBtn.getAttribute('data-url') || '/transactions/recategorize';
-                    fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+                    fetch(url, {headers: {'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest'}})
                         .then(function (response) {
                             if (!response.ok) throw new Error('Request failed: ' + response.status);
                             return response.json();
@@ -412,11 +442,11 @@
                             document.getElementById('modal-transaction-metadata').textContent = JSON.stringify(transactionMetadata);
 
                             // Update card number
-                            document.getElementById('modal-transaction-card-number').textContent = 
+                            document.getElementById('modal-transaction-card-number').textContent =
                                 transactionCardNumber || 'N/A';
 
                             // Update comment
-                            document.getElementById('modal-transaction-comment').textContent = 
+                            document.getElementById('modal-transaction-comment').textContent =
                                 transactionComment || 'N/A';
 
                             // Hide the category select container
@@ -520,13 +550,13 @@
             const endDateInput = document.querySelector('input[name="end_date"]');
 
             if (startDateInput && endDateInput) {
-                startDateInput.addEventListener('change', function() {
+                startDateInput.addEventListener('change', function () {
                     if (endDateInput.value && startDateInput.value > endDateInput.value) {
                         endDateInput.value = startDateInput.value;
                     }
                 });
 
-                endDateInput.addEventListener('change', function() {
+                endDateInput.addEventListener('change', function () {
                     if (startDateInput.value && endDateInput.value < startDateInput.value) {
                         startDateInput.value = endDateInput.value;
                     }
@@ -534,12 +564,12 @@
 
                 // Quick date range selection
                 document.querySelectorAll('.quick-date').forEach(link => {
-                    link.addEventListener('click', function(e) {
+                    link.addEventListener('click', function (e) {
                         e.preventDefault();
                         const range = this.dataset.range;
                         let start, end;
 
-                        switch(range) {
+                        switch (range) {
                             case 'this-month':
                                 start = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
                                 end = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
@@ -591,7 +621,7 @@
                 });
             }
 
-            // Save comment button click handler        
+            // Save comment button click handler
             if (saveCommentBtn) {
                 saveCommentBtn.addEventListener('click', function () {
                     commentEdit.classList.add('d-none');
@@ -647,7 +677,7 @@
                 }
 
                 // Select all functionality
-                selectAll.addEventListener('change', function() {
+                selectAll.addEventListener('change', function () {
                     transactionCheckboxes.forEach(checkbox => {
                         checkbox.checked = this.checked;
                     });
@@ -660,12 +690,12 @@
                 });
 
                 // Show/hide mass actions form
-                massActionsBtn.addEventListener('click', function() {
+                massActionsBtn.addEventListener('click', function () {
                     massActionsForm.classList.toggle('d-none');
                 });
 
                 if (cancelMassActions) {
-                    cancelMassActions.addEventListener('click', function() {
+                    cancelMassActions.addEventListener('click', function () {
                         massActionsForm.classList.add('d-none');
                         selectAll.checked = false;
                         transactionCheckboxes.forEach(checkbox => {

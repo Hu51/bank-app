@@ -36,6 +36,7 @@ class TransactionController extends Controller
         // Add amount range filters
         $minAmount = $request->get('min_amount');
         $maxAmount = $request->get('max_amount');
+        $groupByPartner = intval($request->get('groupByPartner')) ?? 0;
 
         $query = Transaction::query()
             ->where('user_id', $this->authedUser())
@@ -68,6 +69,17 @@ class TransactionController extends Controller
             $query->where('amount', '<=', $maxAmount);
         }
 
+        if (!empty($groupByPartner)) {
+            $query->groupByRaw('type, counterparty');
+            $query->orderByRaw('SUBSTR(transaction_date, 0, 7), counterparty, type');
+            $query->selectRaw('
+                counterparty,
+                type,
+                count(id) as description,
+                MAX(category_id) as category_id,
+                SUM(amount) as amount');
+        }
+
         $transactions = $query->paginate(50)->appends($request->all());
 
         // Get min and max dates from transactions for the datepicker
@@ -83,7 +95,8 @@ class TransactionController extends Controller
             'endDate',
             'dateRange',
             'minAmount',
-            'maxAmount'
+            'maxAmount',
+            'groupByPartner'
         ));
     }
 
