@@ -39,8 +39,7 @@ class TransactionController extends Controller
         $groupByPartner = intval($request->get('groupByPartner')) ?? 0;
 
         $query = Transaction::query()
-            ->where('user_id', $this->authedUser())
-            ->orderBy('transaction_date', 'desc');
+            ->where('user_id', $this->authedUser());
 
         // Apply date range filter
         if ($startDate) {
@@ -70,14 +69,16 @@ class TransactionController extends Controller
         }
 
         if (!empty($groupByPartner)) {
-            $query->groupByRaw('type, counterparty');
-            $query->orderByRaw('SUBSTR(transaction_date, 0, 7), counterparty, type');
+            $query->groupByRaw('counterparty, type');
+            $query->orderByRaw('counterparty, type');
             $query->selectRaw('
                 counterparty,
                 type,
                 count(id) as description,
                 MAX(category_id) as category_id,
                 SUM(amount) as amount');
+        } else {
+            $query->orderBy('transaction_date', 'desc');
         }
 
         $transactions = $query->paginate(50)->appends($request->all());

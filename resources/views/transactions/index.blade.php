@@ -150,11 +150,17 @@
                                         @endif
                                         <th>Counterparty</th>
                                         <th class="d-none d-lg-table-cell">
-                                            @if(!$groupByPartner) Description @else Count @endif
+                                            @if(!$groupByPartner)
+                                                Description
+                                            @else
+                                                Count
+                                            @endif
                                         </th>
                                         <th class="text-end">Amount</th>
-                                        <th class="d-none d-xl-table-cell">Card</th>
-                                        <th>Category</th>
+                                        @if(!$groupByPartner)
+                                            <th class="d-none d-xl-table-cell">Card</th>
+                                            <th>Category</th>
+                                        @endif
                                     </tr>
                                     </thead>
                                     <tbody class="table-sm">
@@ -186,7 +192,7 @@
                                                 </td>
                                             @endif
                                             <td class="small">
-                                                <span class="d-inline-block" style="max-width: 10rem;" title="{{ $transaction->counterparty }}">
+                                                <span class="d-inline-block" title="{{ $transaction->counterparty }}">
                                                     {{ Str::limit($transaction->counterparty, 30) }}
                                                 </span>
                                                 @if($transaction->comment)
@@ -197,19 +203,21 @@
                                             <td class="text-end fw-medium {{ $transaction->type === 'income' ? 'text-success' : 'text-danger' }}">
                                                 {{ number_format($transaction->amount, 2) }}
                                             </td>
-                                            <td class="d-none d-xl-table-cell small">{{ $transaction->card_number }}</td>
-                                            <td>
-                                                @if($transaction->category)
-                                                    <span class="d-flex align-items-center">
-                                                        @if($transaction->category->icon)
-                                                            <i class="{{ $transaction->category->icon }} me-1 small"></i>
-                                                        @endif
-                                                        <span style="color: {{ $transaction->category->color ?? '#000000' }}">{{ $transaction->category->name }}</span>
-                                                    </span>
-                                                @else
-                                                    <span class="text-muted">—</span>
-                                                @endif
-                                            </td>
+                                            @if(!$groupByPartner)
+                                                <td class="d-none d-xl-table-cell small">{{ $transaction->card_number }}</td>
+                                                <td>
+                                                    @if($transaction->category)
+                                                        <span class="d-flex align-items-center">
+                                                            @if($transaction->category->icon)
+                                                                <i class="{{ $transaction->category->icon }} me-1 small"></i>
+                                                            @endif
+                                                            <span style="color: {{ $transaction->category->color ?? '#000000' }}">{{ $transaction->category->name }}</span>
+                                                        </span>
+                                                    @else
+                                                        <span class="text-muted">—</span>
+                                                    @endif
+                                                </td>
+                                            @endif
                                         </tr>
                                     @endforeach
                                     </tbody>
