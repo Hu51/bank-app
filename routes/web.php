@@ -39,4 +39,6 @@ Route::get('/categories/{category}/keywords', [CategoryController::class, 'editK
 Route::post('/categories/{category}/keywords', [CategoryController::class, 'updateKeywords'])->name('categories.keywords.update');
 
 // Mapping Profile routes
+Route::post('mapping-profiles/preview-csv', [MappingProfileController::class, 'previewCsv'])
+    ->name('mapping-profiles.preview-csv');
 Route::resource('mapping-profiles', MappingProfileController::class);

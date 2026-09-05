@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MappingProfile;
 use Illuminate\Http\Request;
+use League\Csv\Reader;
 
 class MappingProfileController extends Controller
 {
@@ -22,6 +23,83 @@ class MappingProfileController extends Controller
     public function create()
     {
         return view('mapping-profiles.create');
+    }
+
+    /**
+     * Parse a sample CSV and return headers plus a short preview.
+     */
+    public function previewCsv(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|max:8192',
+            'skip_rows' => 'required|integer|min:0',
+        ]);
+
+        $skip = (int) $request->input('skip_rows');
+        $contents = file_get_contents($request->file('csv_file')->getRealPath());
+
+        if ($contents === false || trim($contents) === '') {
+            return response()->json(['message' => 'The CSV file is empty.'], 422);
+        }
+
+        if (! mb_check_encoding($contents, 'UTF-8')) {
+            $contents = mb_convert_encoding($contents, 'UTF-8', 'Windows-1250,ISO-8859-2,ISO-8859-1');
+        }
+
+        $contents = preg_replace('/^\xEF\xBB\xBF/', '', $contents) ?? $contents;
+        $delimiter = substr_count($contents, ';') >= substr_count($contents, ',') ? ';' : ',';
+
+        $csv = Reader::createFromString($contents);
+        $csv->setDelimiter($delimiter);
+        $csv->setEnclosure('"');
+        $csv->setEscape('');
+
+        $rows = [];
+        foreach ($csv->getRecords() as $record) {
+            $rows[] = array_map(static fn ($cell) => trim((string) $cell), array_values($record));
+            if (count($rows) >= 20) {
+                break;
+            }
+        }
+
+        if (! isset($rows[$skip])) {
+            return response()->json([
+                'headers' => [],
+                'preview' => [],
+                'column_samples' => [],
+            ]);
+        }
+
+        $headers = $rows[$skip];
+        $preview = [];
+
+        foreach (array_slice($rows, $skip, 10, true) as $index => $cells) {
+            $preview[] = [
+                'line' => $index + 1,
+                'is_header' => $index === $skip,
+                'cells' => $cells,
+            ];
+        }
+
+        $sampleRows = array_slice($rows, $skip + 1, 3);
+        $columnSamples = [];
+
+        foreach ($headers as $colIndex => $header) {
+            if ($header === '') {
+                continue;
+            }
+
+            $columnSamples[$header] = [];
+            foreach ($sampleRows as $sampleRow) {
+                $columnSamples[$header][] = $sampleRow[$colIndex] ?? '';
+            }
+        }
+
+        return response()->json([
+            'headers' => array_values(array_filter($headers, static fn ($header) => $header !== '')),
+            'preview' => $preview,
+            'column_samples' => $columnSamples,
+        ]);
     }
 
     /**
